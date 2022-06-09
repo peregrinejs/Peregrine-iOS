@@ -19,9 +19,9 @@ extension WebFrame {
     public final class Configuration {
         /// The URL from which to load HTML.
         ///
-        /// If `baseURL` is a file URL, the files are loaded from the device at the
-        /// specified URL using the built-in `app://` server. Otherwise, files are
-        /// loaded from the specified URL as remote resources.
+        /// If `baseURL` is a file URL, the files are loaded from the device at
+        /// the specified URL using the built-in `app://` server. Otherwise,
+        /// files are loaded from the specified URL as remote resources.
         public let baseURL: URL
         public let remoteInterface: RemoteInterface?
         public let pathHandlers: [String: PathHandler]?

@@ -30,8 +30,9 @@ public final class WebFrameRepresentable: UIViewRepresentable {
     }
 
     public final func makeUIView(context _: Context) -> WKWebView {
+        let webView = _frame.webView
         _frame.loadBaseURL()
-        return _frame.webView
+        return webView
     }
 
     public final func updateUIView(_: WKWebView, context _: Context) {}

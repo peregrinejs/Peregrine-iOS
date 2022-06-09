@@ -16,28 +16,49 @@
 import WebKit
 
 public final class WebFrame: Frame {
-    internal static func dispatchQueue(from configuration: Configuration)
-        -> DispatchQueue {
-        return DispatchQueue(
-            label: configuration.queueLabel,
-            qos: .userInitiated
-        )
-    }
+    public let view = WebFrameRepresentable()
 
-    internal static func appServer(from configuration: Configuration) -> FileServer? {
-        guard configuration.baseURL.isFileURL else {
-            return nil
+    internal let configuration: Configuration
+    internal let appServer: FileServer?
+    internal let rpcServer: RPCServer
+
+    internal var webView: WKWebView {
+        if let webView = _webView {
+            return webView
         }
 
-        let appServerConfiguration = FileServer.Configuration(
-            scheme: Configuration.appScheme,
-            baseURL: configuration.baseURL
-        )
+        let (webView, _) = load()
 
-        return FileServer(configuration: appServerConfiguration)
+        return webView
     }
 
-    internal static func rpcServer(from configuration: Configuration) -> RPCServer {
+    internal var webViewNavigationDelegate: WebFrameNavigationDelegate {
+        if let webViewNavigationDelegate = _webViewNavigationDelegate {
+            return webViewNavigationDelegate
+        }
+
+        let (_, webViewNavigationDelegate) = load()
+
+        return webViewNavigationDelegate
+    }
+
+    private var _webView: WKWebView?
+    private var _webViewNavigationDelegate: WebFrameNavigationDelegate?
+
+    public init(configuration: Configuration) {
+        self.configuration = configuration
+
+        if configuration.baseURL.isFileURL {
+            let appServerConfiguration = FileServer.Configuration(
+                scheme: Configuration.appScheme,
+                baseURL: configuration.baseURL
+            )
+
+            appServer = FileServer(configuration: appServerConfiguration)
+        } else {
+            appServer = nil
+        }
+
         let rpcServerConfiguration = RPCServer.Configuration(
             scheme: Configuration.rpcScheme,
             allowedOrigin: configuration.allowedOrigin,
@@ -45,22 +66,28 @@ public final class WebFrame: Frame {
             pathHandlers: configuration.pathHandlers
         )
 
-        return RPCServer(configuration: rpcServerConfiguration)
+        rpcServer = RPCServer(configuration: rpcServerConfiguration)
+        view.frame = self
     }
 
-    public let view: WebFrameRepresentable
+    /// Load the WebView and prepare for display.
+    ///
+    /// The WebView is lazy-loaded when either the `webView` or
+    /// `webViewNavigationDelegate` properties is accessed. Usually, this
+    /// happens during the lifecycles of `WebFrameRepresentable`. This avoids
+    /// prematurely allocating resources and works around this bug:
+    /// https://developer.apple.com/forums/thread/61432?answerId=174794022#174794022
+    ///
+    /// - Returns: An initialized Web View and its navigation delegate.
+    private func load() -> (WKWebView, WebFrameNavigationDelegate) {
+        if _webView != nil || _webViewNavigationDelegate != nil {
+            fatalError("WebFrame refuses to initialize WebView twice.")
+        }
 
-    internal let configuration: Configuration
-    internal let appServer: FileServer?
-    internal let rpcServer: RPCServer
-    internal let webView: WKWebView
-    internal let webViewNavigationDelegate: WebFrameNavigationDelegate
-
-    public init(configuration: Configuration) {
-        let queue = WebFrame.dispatchQueue(from: configuration)
-
-        appServer = WebFrame.appServer(from: configuration)
-        rpcServer = WebFrame.rpcServer(from: configuration)
+        let queue = DispatchQueue(
+            label: configuration.queueLabel,
+            qos: .userInitiated
+        )
 
         let webViewConfiguration = WKWebViewConfiguration()
         webViewConfiguration.allowsInlineMediaPlayback = true
@@ -85,13 +112,12 @@ public final class WebFrame: Frame {
         webView.scrollView.bounces = false
         webView.scrollView.contentInsetAdjustmentBehavior = .never
 
-        self.configuration = configuration
-        self.webView = webView
-        self.webViewNavigationDelegate = webViewNavigationDelegate
-        view = WebFrameRepresentable()
+        webViewNavigationDelegate.frame = self
 
-        self.webViewNavigationDelegate.frame = self
-        view.frame = self
+        _webView = webView
+        _webViewNavigationDelegate = webViewNavigationDelegate
+
+        return (webView, webViewNavigationDelegate)
     }
 
     internal func loadBaseURL() {
@@ -102,7 +128,6 @@ public final class WebFrame: Frame {
         )
 
         let navigation = webView.load(request)
-
         webViewNavigationDelegate.initialNavigation = navigation
     }
 }
