@@ -27,7 +27,7 @@ public final class WebFrame: Frame {
             return webView
         }
 
-        let (webView, _) = load()
+        let (webView, _, _) = load()
 
         return webView
     }
@@ -37,13 +37,24 @@ public final class WebFrame: Frame {
             return webViewNavigationDelegate
         }
 
-        let (_, webViewNavigationDelegate) = load()
+        let (_, webViewNavigationDelegate, _) = load()
 
         return webViewNavigationDelegate
     }
 
+    internal var webViewUIDelegate: WebFrameUIDelegate {
+        if let webViewUIDelegate = _webViewUIDelegate {
+            return webViewUIDelegate
+        }
+
+        let (_, _, webViewUIDelegate) = load()
+
+        return webViewUIDelegate
+    }
+
     private var _webView: WKWebView?
     private var _webViewNavigationDelegate: WebFrameNavigationDelegate?
+    private var _webViewUIDelegate: WebFrameUIDelegate?
 
     public init(configuration: Configuration) {
         self.configuration = configuration
@@ -79,7 +90,7 @@ public final class WebFrame: Frame {
     /// https://developer.apple.com/forums/thread/61432?answerId=174794022#174794022
     ///
     /// - Returns: An initialized Web View and its navigation delegate.
-    private func load() -> (WKWebView, WebFrameNavigationDelegate) {
+    private func load() -> (WKWebView, WebFrameNavigationDelegate, WebFrameUIDelegate) {
         if _webView != nil || _webViewNavigationDelegate != nil {
             fatalError("WebFrame refuses to initialize WebView twice.")
         }
@@ -106,18 +117,22 @@ public final class WebFrame: Frame {
 
         let webView = WKWebView(frame: .zero, configuration: webViewConfiguration)
         let webViewNavigationDelegate = WebFrameNavigationDelegate()
+        let webViewUIDelegate = WebFrameUIDelegate()
 
         webView.allowsLinkPreview = false
         webView.navigationDelegate = webViewNavigationDelegate
         webView.scrollView.bounces = false
         webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.uiDelegate = webViewUIDelegate
 
         webViewNavigationDelegate.frame = self
+        webViewUIDelegate.frame = self
 
         _webView = webView
         _webViewNavigationDelegate = webViewNavigationDelegate
+        _webViewUIDelegate = webViewUIDelegate
 
-        return (webView, webViewNavigationDelegate)
+        return (webView, webViewNavigationDelegate, webViewUIDelegate)
     }
 
     internal func loadBaseURL() {
