@@ -116,6 +116,15 @@ public final class WebFrame: Frame {
             forURLScheme: rpcServer.configuration.scheme
         )
 
+        let scriptMessageHandler = WebFrameScriptMessageHandler()
+
+        webViewConfiguration.userContentController = WKUserContentController()
+        webViewConfiguration.userContentController.addScriptMessageHandler(
+            scriptMessageHandler,
+            contentWorld: WKContentWorld.page,
+            name: "peregrine"
+        )
+
         let webView = WKWebView(frame: .zero, configuration: webViewConfiguration)
         let webViewNavigationDelegate = WebFrameNavigationDelegate()
         let webViewUIDelegate = WebFrameUIDelegate()
