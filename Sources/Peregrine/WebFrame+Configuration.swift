@@ -23,7 +23,8 @@ extension WebFrame {
         /// the specified URL using the built-in `app://` server. Otherwise,
         /// files are loaded from the specified URL as remote resources.
         public let baseURL: URL
-        public let remoteInterface: RemoteInterface?
+        public let functions: RemoteFunctions?
+        public let observables: RemoteObservables?
         public let pathHandlers: [String: PathHandler]?
 
         internal static let appScheme = "app"
@@ -54,11 +55,13 @@ extension WebFrame {
                 forResource: "www",
                 withExtension: nil
             )!, // swiftlint:disable:this force_unwrapping
-            remoteInterface: RemoteInterface? = nil,
+            functions: RemoteFunctions? = nil,
+            observables: RemoteObservables? = nil,
             pathHandlers: [String: PathHandler]? = nil
         ) {
             self.baseURL = baseURL
-            self.remoteInterface = remoteInterface
+            self.functions = functions
+            self.observables = observables
             self.pathHandlers = pathHandlers
         }
     }

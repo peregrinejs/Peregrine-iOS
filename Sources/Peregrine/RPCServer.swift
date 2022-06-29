@@ -185,7 +185,7 @@ internal final class RPCServer: Server, ServerProtocol {
             didReceive(response)
         }
 
-        guard let method = configuration.remoteInterface?.functions[methodKey] else {
+        guard let functions = configuration.functions, let method = functions[methodKey] else {
             call.fail(
                 "Unknown function: \(methodKey)",
                 code: RPCError.unknownMethod.description
@@ -216,7 +216,7 @@ internal final class RPCServer: Server, ServerProtocol {
         subscriptionRequest = request
         subscriptionHandler = handler
 
-        for (observableName, observable) in configuration.remoteInterface?.observables ?? [:] {
+        for (observableName, observable) in configuration.observables ?? [:] {
             observable
                 .dropFirst()
                 .filter { $0 != nil }

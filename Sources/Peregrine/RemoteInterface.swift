@@ -26,13 +26,3 @@ public typealias RemoteObservable = AnyPublisher<Event?, Never>
 
 /// A dictionary of observable names -> observables.
 public typealias RemoteObservables = [String: RemoteObservable]
-
-public struct RemoteInterface {
-    let functions: RemoteFunctions
-    let observables: RemoteObservables
-
-    public init(functions: RemoteFunctions, observables: RemoteObservables) {
-        self.functions = functions
-        self.observables = observables
-    }
-}

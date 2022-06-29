@@ -73,7 +73,8 @@ public final class WebFrame: Frame {
         let rpcServerConfiguration = RPCServer.Configuration(
             scheme: Configuration.rpcScheme,
             allowedOrigin: configuration.allowedOrigin,
-            remoteInterface: configuration.remoteInterface,
+            functions: configuration.functions,
+            observables: configuration.observables,
             pathHandlers: configuration.pathHandlers
         )
 

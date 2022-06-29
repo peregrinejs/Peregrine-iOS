@@ -19,19 +19,22 @@ extension RPCServer {
     internal struct Configuration {
         internal let scheme: String
         internal let allowedOrigin: String
-        internal let remoteInterface: RemoteInterface?
+        internal let functions: RemoteFunctions?
+        internal let observables: RemoteObservables?
         internal let pathMatchers: [PathMatcher]?
         internal let baseURL: URL
 
         internal init(
             scheme: String,
             allowedOrigin: String,
-            remoteInterface: RemoteInterface?,
+            functions: RemoteFunctions?,
+            observables: RemoteObservables?,
             pathHandlers: [String: PathHandler]?
         ) {
             self.scheme = scheme
             self.allowedOrigin = allowedOrigin
-            self.remoteInterface = remoteInterface
+            self.functions = functions
+            self.observables = observables
 
             let baseURL = URL(string: "\(scheme):///")! // swiftlint:disable:this force_unwrapping
             let userBaseURL = baseURL.appendingPathComponent(userNamespace)
