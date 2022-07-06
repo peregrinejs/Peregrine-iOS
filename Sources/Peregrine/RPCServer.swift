@@ -25,10 +25,28 @@ internal final class RPCServer: Server, ServerProtocol {
     private var subscriptionRequest: URLRequest?
     private var subscriptionHandler: ServerResponseHandler?
     private var subscriptions: Set<AnyCancellable> = Set()
+    private var queuedEvents: [(Event, String)] = []
 
     internal init(configuration: Configuration) {
         self.configuration = configuration
         super.init()
+
+        for (observableName, observable) in configuration.observables ?? [:] {
+            if !observableName.hasSuffix("$") {
+                fatalError("Observables must end in a dollar sign ($).")
+            }
+
+            observable
+                .filter { $0 != nil }
+                .receive(on: RunLoop.main)
+                .sink { event in
+                    self.handle(
+                        event: event!, // swiftlint:disable:this force_unwrapping
+                        with: observableName
+                    )
+                }
+                .store(in: &subscriptions)
+        }
     }
 
     override internal func headers() -> Headers {
@@ -216,30 +234,18 @@ internal final class RPCServer: Server, ServerProtocol {
         subscriptionRequest = request
         subscriptionHandler = handler
 
-        for (observableName, observable) in configuration.observables ?? [:] {
-            if !observableName.hasSuffix("$") {
-                fatalError("Observables must end in a dollar sign ($).")
-            }
-
-            observable
-                .dropFirst()
-                .filter { $0 != nil }
-                .receive(on: RunLoop.main)
-                .sink { event in
-                    self.handle(
-                        event: event!, // swiftlint:disable:this force_unwrapping
-                        with: observableName
-                    )
-                }
-                .store(in: &subscriptions)
+        for (event, key) in queuedEvents {
+            handle(event: event, with: key)
         }
+
+        queuedEvents.removeAll()
     }
 
     private func handle(event: Event, with key: String) {
         let value = event.data
 
         guard let handler = subscriptionHandler else {
-            // TODO: this isn't possible anymore: remove or refactor
+            queuedEvents.append((event, key))
 
             let decodedValue = String(decoding: value, as: UTF8.self)
 
@@ -247,8 +253,8 @@ internal final class RPCServer: Server, ServerProtocol {
                 """
                 Observable '\(key)' sent value '\(decodedValue)' while the \
                 subscription connection was not active (likely because it was \
-                not yet established). This value will not be delivered to the \
-                client.
+                not yet established). It has been queued for delivery upon \
+                the next subscription.
                 """,
                 level: .warn
             )
