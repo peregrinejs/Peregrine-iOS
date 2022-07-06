@@ -17,3 +17,4 @@ identifier_name:
   excluded:
     - id
     - to
+large_tuple: 3
