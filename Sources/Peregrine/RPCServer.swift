@@ -217,6 +217,10 @@ internal final class RPCServer: Server, ServerProtocol {
         subscriptionHandler = handler
 
         for (observableName, observable) in configuration.observables ?? [:] {
+            if !observableName.hasSuffix("$") {
+                fatalError("Observables must end in a dollar sign ($).")
+            }
+
             observable
                 .dropFirst()
                 .filter { $0 != nil }
