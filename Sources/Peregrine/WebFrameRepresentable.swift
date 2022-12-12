@@ -16,24 +16,16 @@
 import SwiftUI
 import WebKit
 
-public final class WebFrameRepresentable: UIViewRepresentable {
+public struct WebFrameRepresentable: UIViewRepresentable {
+    public let frame: WebFrame
+
     public typealias UIViewType = WKWebView
 
-    internal weak var frame: WebFrame?
-
-    private var _frame: WebFrame {
-        guard let frame = frame else {
-            fatalError("WebFrameRepresentable lost reference to WebFrame.")
-        }
-
-        return frame
-    }
-
-    public final func makeUIView(context _: Context) -> WKWebView {
-        let webView = _frame.webView
-        _frame.loadBaseURL()
+    public func makeUIView(context _: Context) -> WKWebView {
+        let webView = frame.webView
+        frame.loadBaseURL()
         return webView
     }
 
-    public final func updateUIView(_: WKWebView, context _: Context) {}
+    public func updateUIView(_: WKWebView, context _: Context) {}
 }
