@@ -16,8 +16,6 @@
 import WebKit
 
 public final class WebFrame: Frame {
-    public let view = WebFrameRepresentable()
-
     internal let configuration: Configuration
     internal let appServer: FileServer?
     internal let rpcServer: RPCServer
@@ -79,8 +77,11 @@ public final class WebFrame: Frame {
         )
 
         rpcServer = RPCServer(configuration: rpcServerConfiguration)
-        view.frame = self
     }
+
+    public lazy var view: WebFrameRepresentable = {
+        return WebFrameRepresentable(frame: self)
+    }()
 
     /// Load the WebView and prepare for display.
     ///
