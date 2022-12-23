@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-  spec.name         = "Peregrine-iOS"
+  spec.name         = "Peregrine"
   spec.version      = "0.0.2"
   spec.summary      = "The Swift library that serves Peregrine Web Frames as SwiftUI views"
   spec.description  = <<-DESC
