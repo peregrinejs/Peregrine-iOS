@@ -116,6 +116,13 @@ public final class WebFrame: Frame {
         let webViewUIDelegate = WebFrameUIDelegate()
 
         webView.allowsLinkPreview = false
+
+        if #available(iOS 16.4, *) {
+            webView.isInspectable = true
+        } else {
+            // webviews are inspectable by default before 16.4
+        }
+
         webView.navigationDelegate = webViewNavigationDelegate
         webView.scrollView.bounces = false
         webView.scrollView.contentInsetAdjustmentBehavior = .never
