@@ -1,5 +1,3 @@
-
-
 public struct WebViewScrollViewOptions {
     public let bounces: Bool
     
