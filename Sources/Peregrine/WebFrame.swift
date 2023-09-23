@@ -124,7 +124,7 @@ public final class WebFrame: Frame {
         }
 
         webView.navigationDelegate = webViewNavigationDelegate
-        webView.scrollView.bounces = false
+        webView.scrollView.bounces = configuration.webViewOptions.scrollView.bounces
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.uiDelegate = webViewUIDelegate
 

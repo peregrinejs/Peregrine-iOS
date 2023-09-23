@@ -11,6 +11,7 @@ extension WebFrame {
         public let functions: RemoteFunctions?
         public let observables: RemoteObservables?
         public let pathHandlers: [String: PathHandler]?
+        public let webViewOptions: WebViewOptions
 
         internal static let appScheme = "app"
         internal static let rpcScheme = "peregrine"
@@ -42,12 +43,14 @@ extension WebFrame {
             )!, // swiftlint:disable:this force_unwrapping
             functions: RemoteFunctions? = nil,
             observables: RemoteObservables? = nil,
-            pathHandlers: [String: PathHandler]? = nil
+            pathHandlers: [String: PathHandler]? = nil,
+            webViewOptions: WebViewOptions = WebViewOptions()
         ) {
             self.baseURL = baseURL
             self.functions = functions
             self.observables = observables
             self.pathHandlers = pathHandlers
+            self.webViewOptions = webViewOptions
         }
     }
 }
