@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name             = "Peregrine"
-  spec.version          = "0.13.1"
+  spec.version          = "0.13.2"
   spec.summary          = "The Swift library that serves Peregrine Web Frames as SwiftUI views"
   spec.description      = "Peregrine is a set of native and web libraries for building hybrid apps using web technologies. For both iOS and Android, Peregrine provides an elegant way to add feature-rich web views, called Web Frames, to new and existing native apps."
   spec.homepage         = "https://peregrinejs.com/en/docs/ios"
