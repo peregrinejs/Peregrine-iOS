@@ -4,4 +4,6 @@ public struct WebViewScrollViewOptions {
 
 public struct WebViewOptions {
     public let scrollView = WebViewScrollViewOptions()
+
+    public init() {}
 }
